@@ -10,17 +10,22 @@ from bs4 import BeautifulSoup
 #获取当前运行的脚本的绝对路径
 #https://blog.csdn.net/weixin_37746272/article/details/78980259
 PATH = os.path.dirname(os.path.abspath(__file__))
+###
+print(PATH)
+###
 
 class ZhihuTopicId(object):
-    '''根据文件cat_id_mapping_34中的话题，解析出所有话题对应的topic_id，并写入本地。
-    get_catory_id为抓取话题广场id的函数'''
+    ''' 根据文件cat_id_mapping_34中的话题，解析出所有话题对应的topic_id，并写入本地。
+    get_catory_id为抓取话题广场id的函数 '''
     topic_root_url = 'http://www.zhihu.com/topics'#话题广场根目录
-    root_url = 'http://www.zhihu.com'#根目录
-    catgory_id_mapping_filename = os.path.join(PATH, 'sys', 'cat_id_mapping_34.txt')#话题广场中话题及其对应的id
+    root_url = 'http://www.zhihu.com'   #根目录
+    catgory_id_mapping_filename = os.path.join(PATH, 'sys', 'cat_id_mapping_34.txt')  #话题广场中话题及其对应的id
     topic_id_filename = os.path.join(PATH, 'sys', time.strftime('all_topic_id_%Y_%m_%d_%H%M%S.txt'))#话题广场中对应的tipic id
-
+    ###
+    print(catgory_id_mapping_filename)
+    ###
     def __init__(self):
-        self.chosen_id_list = []
+        self.chosen_id_list = []    #读取本地不以#号开头的ID信息，保存在此列表中
         self._load_cat_id()
         self.cookie = self.get_cookie_param()
 
