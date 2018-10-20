@@ -7,25 +7,18 @@ import codecs
 import requests
 from bs4 import BeautifulSoup
 
-#获取当前运行的脚本的绝对路径
-#https://blog.csdn.net/weixin_37746272/article/details/78980259
 PATH = os.path.dirname(os.path.abspath(__file__))
-###
-print(PATH)
-###
 
 class ZhihuTopicId(object):
-    ''' 根据文件cat_id_mapping_34中的话题，解析出所有话题对应的topic_id，并写入本地。
-    get_catory_id为抓取话题广场id的函数 '''
+    '''根据文件cat_id_mapping_34中的话题，解析出所有话题对应的topic_id，并写入本地。
+    get_catory_id为抓取话题广场id的函数'''
     topic_root_url = 'http://www.zhihu.com/topics'#话题广场根目录
-    root_url = 'http://www.zhihu.com'   #根目录
-    catgory_id_mapping_filename = os.path.join(PATH, 'sys', 'cat_id_mapping_34.txt')  #话题广场中话题及其对应的id
+    root_url = 'http://www.zhihu.com'#根目录
+    catgory_id_mapping_filename = os.path.join(PATH, 'sys', 'cat_id_mapping_34.txt')#话题广场中话题及其对应的id
     topic_id_filename = os.path.join(PATH, 'sys', time.strftime('all_topic_id_%Y_%m_%d_%H%M%S.txt'))#话题广场中对应的tipic id
-    ###
-    print(catgory_id_mapping_filename)
-    ###
+
     def __init__(self):
-        self.chosen_id_list = []    #读取本地不以#号开头的ID信息，保存在此列表中
+        self.chosen_id_list = []
         self._load_cat_id()
         self.cookie = self.get_cookie_param()
 
@@ -36,7 +29,7 @@ class ZhihuTopicId(object):
                 if not line.startswith('#'):
                     topic_id = line.strip().split('\t')[-1]
                     self.chosen_id_list.append(topic_id)
-            print('catagory id count:', len(self.chosen_id_list))
+            print 'catagory id count:', len(self.chosen_id_list)
 
     def log_record(self):
         '''生成log句柄，用于记录日志'''
@@ -50,24 +43,24 @@ class ZhihuTopicId(object):
         try:
             html = requests.get(ZhihuTopicId.topic_root_url).text
         except BaseException:
-            print('request time out...')
+            print 'request time out...'
             try:
                 html = requests.get(ZhihuTopicId.topic_root_url).text
             except BaseException:
-                print('request time out...')
+                print 'request time out...'
                 return []
         soup = BeautifulSoup(html)
         url_str = soup.find('ul', class_="zm-topic-cat-main clearfix")
         url_li_list = url_str.find_all('li', attrs={'data-id':True})
         catagory_id_list = [(item.a.text, item['data-id']) for item in url_li_list]
-        print(catagory_id_list)
+        print catagory_id_list
         return catagory_id_list
         # codecs.open('cat_id_mapping.txt', mode='wb', encoding='utf-8').writelines([('\t'.join(item) + '\n') for item in url_list])
 
     def get_cookie_param(self):
         '''获取cookie信息'''
         cookie = requests.get(self.topic_root_url).cookies.get('_xsrf')
-        print('cookie info: ', cookie)
+        print 'cookie info: ', cookie
         return cookie
 
     def get_topic_id_by_catarory_id(self, cattopic_id):
@@ -86,14 +79,14 @@ class ZhihuTopicId(object):
             msg_list = json_data.get('msg')
             topic_url_list = [BeautifulSoup(item).find('a')['href'] for item in msg_list]
             total_topic_id_set |= set(topic_url_list)
-        print('total topic count:', len(total_topic_id_set))
+        print 'total topic count:', len(total_topic_id_set)
         return total_topic_id_set
 
     def write_all_topic_id(self):
         total_id_set = set()
         for cattopic_id in self.chosen_id_list:
             total_id_set |= self.get_topic_id_by_catarory_id(cattopic_id)
-        print('topic id count:', len(total_id_set))#1524据个人习惯过滤后，余22个标签的1014个topic_id
+        print 'topic id count:', len(total_id_set)#1524据个人习惯过滤后，余22个标签的1014个topic_id
         codecs.open(self.topic_id_filename, mode='wb', encoding='utf-8').writelines([item+'\n' for item in total_id_set])
 
 if __name__ == "__main__":
@@ -101,7 +94,7 @@ if __name__ == "__main__":
         zhihu = ZhihuTopicId()
         start_time = time.time()
         zhihu.write_all_topic_id()
-        print(time.time() - start_time)
+        print time.time() - start_time
     # write_all_topic_id()
 
     def utils_test():
